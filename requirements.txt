@@ -1,0 +1,15 @@
+# requirements.txt
+
+aiohttp~=3.10.5
+asyncpg
+coloredlogs==15.0.1
+python-dotenv==1.0.1
+pytest~=8.3.4
+requests~=2.32.3
+javaobj-py3~=0.4.4
+fastapi
+sqlalchemy
+pydantic
+ossapi
+osudroid-api-wrapper
+rosu-pp-py
