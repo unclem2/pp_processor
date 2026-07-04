@@ -2,7 +2,6 @@ import osudroid_api_wrapper as od
 import rosu_pp_py
 
 from objects.models.beatmap_attrs import BeatmapAttributesModel
-from objects.models.beatmap_diff_attrs import BeatmapDifficultyAttributesModel
 
 
 class BeatmapDifficultyAttributesCalculator:
@@ -10,7 +9,7 @@ class BeatmapDifficultyAttributesCalculator:
         pass
 
     def calculate(
-        self, beatmap: rosu_pp_py.Beatmap, beatmap_attrs: BeatmapAttributesModel, mods: od.ModList, clock_rate: int | float | None
+        self, beatmap: rosu_pp_py.Beatmap, beatmap_attrs: BeatmapAttributesModel, mods: od.ModList, clock_rate: float | None,
     ) -> rosu_pp_py.DifficultyAttributes:
         difficulty = rosu_pp_py.Difficulty()
         difficulty.set_ar(ar=beatmap_attrs.ar, fixed=True)

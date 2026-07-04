@@ -152,3 +152,4 @@ coloredlogs
 config.json
 TODO.md
 .ruff_cache
+*.html

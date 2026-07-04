@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict
 
 from .beatmap_attrs import BeatmapAttributesModel
 from .beatmap_diff_attrs import BeatmapDifficultyAttributesModel
-from .performance_attrs import PerformanceAttributesModel
 
 
 class BeatmapModel(BaseModel):

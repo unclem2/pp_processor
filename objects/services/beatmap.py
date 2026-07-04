@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 
 import aiohttp
@@ -43,15 +44,19 @@ class BeatmapService:
         self.performance_calculator = performance_calculator
 
     async def from_md5(self, md5: str) -> BeatmapModel | None:
-        if request := await self.repository.from_md5(md5):
-            return beatmap_to_model(request)
-        if request := await self.osuapi_client.beatmap(checksum=md5):
-            schema = beatmap_from_api(request, request.beatmapset())
-            await self.repository.save(schema)
-            beatmap = beatmap_to_model(schema)
-            await self.download(beatmap)
-            return beatmap
-        return None
+        try:
+            if request := await self.repository.from_md5(md5):
+                return beatmap_to_model(request)
+            if request := await self.osuapi_client.beatmap(checksum=md5):
+                schema = beatmap_from_api(request, request.beatmapset())
+                await self.repository.save(schema)
+                beatmap = beatmap_to_model(schema)
+                await self.download(beatmap)
+                return beatmap
+            return None
+        except ValueError:
+            logging.exception(f"[BeatmapService] {md5} - not found")
+            return None
 
     async def from_id(self, beatmap_id: int) -> BeatmapModel | None:
         if request := await self.repository.from_id(beatmap_id):

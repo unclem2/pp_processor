@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -11,6 +12,15 @@ import handlers
 from objects.db.db import engine, init
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler(),
+    ],
+)
 
 
 @asynccontextmanager

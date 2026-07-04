@@ -7,7 +7,7 @@ python-dotenv==1.0.1
 pytest~=8.3.4
 requests~=2.32.3
 javaobj-py3~=0.4.4
-fastapi
+fastapi[standard]
 sqlalchemy
 pydantic
 ossapi

@@ -26,7 +26,7 @@ class ScoreService:
         slidertickhits: int | None,
         sliderendhits: int | None,
     ) -> ScoreModel:
-    
+
         diff_attrs, beatmap_attrs_model, rosu_beatmap, modlist, clock_rate = self.beatmap_service.calculate_diff_attrs(beatmap, mods)
         perf_attrs = self.performance_calculator.calculate(
             difficulty_attrs=diff_attrs,

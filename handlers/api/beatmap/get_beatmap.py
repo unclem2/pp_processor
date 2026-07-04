@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from objects.dependencies.services import get_beatmap_service
-from objects.models.beatmap_diff_attrs import BeatmapDifficultyAttributesModel
 from objects.models.beatmap import BeatmapModel
-from objects.models.performance_attrs import PerformanceAttributesModel
+from objects.models.beatmap_diff_attrs import BeatmapDifficultyAttributesModel
 from objects.services.beatmap import BeatmapService
 
 router = APIRouter(prefix="/get_beatmap")

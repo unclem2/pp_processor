@@ -2,16 +2,15 @@ import osudroid_api_wrapper as od
 import rosu_pp_py
 
 
-
 class PerformanceAttributesCalculator:
     def __init__(self):
         pass
 
     def calculate(
-        self, 
+        self,
         difficulty_attrs: rosu_pp_py.DifficultyAttributes,
         mods: od.ModList,
-        clock_rate: int | float | None = None,
+        clock_rate: float | None = None,
         acc: float | None = None,
         miss: int | None = None,
         combo: int | None = None,
@@ -21,7 +20,7 @@ class PerformanceAttributesCalculator:
         hgeki: int | None = None,
         hkatsu: int | None = None,
         slidertickhits: int | None = None,
-        sliderendhits: int | None = None
+        sliderendhits: int | None = None,
     ) -> rosu_pp_py.PerformanceAttributes:
         performance = rosu_pp_py.Performance()
 
@@ -47,5 +46,5 @@ class PerformanceAttributesCalculator:
         if clock_rate is not None:
             performance.set_clock_rate(clock_rate)
         performance_attributes = performance.calculate(difficulty_attrs)
-        
+
         return performance_attributes
