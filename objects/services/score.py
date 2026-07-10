@@ -11,7 +11,7 @@ class ScoreService:
         self.performance_calculator = performance_calculator
         self.beatmap_service = beatmap_service
 
-    def calculate(
+    async def calculate(
         self,
         beatmap: BeatmapModel,
         mods: list,
@@ -27,7 +27,7 @@ class ScoreService:
         sliderendhits: int | None,
     ) -> ScoreModel:
 
-        diff_attrs, beatmap_attrs_model, rosu_beatmap, modlist, clock_rate = self.beatmap_service.calculate_diff_attrs(beatmap, mods)
+        diff_attrs, beatmap_attrs_model, rosu_beatmap, modlist, clock_rate = await self.beatmap_service.calculate_diff_attrs(beatmap, mods)
         perf_attrs = self.performance_calculator.calculate(
             difficulty_attrs=diff_attrs,
             mods=modlist,

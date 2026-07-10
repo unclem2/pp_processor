@@ -1,5 +1,5 @@
 import logging
-from functools import lru_cache
+import pathlib
 
 import aiohttp
 import osudroid_api_wrapper as od
@@ -23,10 +23,11 @@ from objects.models.beatmap_attrs import BeatmapAttributesModel
 from objects.repositories.beatmap import BeatmapRepository
 
 
-@lru_cache(maxsize=1024)
+# @lru_cache(maxsize=128)
 def open_rosu_beatmap(beatmap_id: int) -> rosu_pp_py.Beatmap:
     beatmap_path = f"/srv/odrx_storage/beatmaps/{beatmap_id}.osu"
     return rosu_pp_py.Beatmap(path=beatmap_path)
+
 
 class BeatmapService:
     def __init__(
@@ -55,19 +56,23 @@ class BeatmapService:
                 return beatmap
             return None
         except ValueError:
-            logging.exception(f"[BeatmapService] {md5} - not found")
+            logging.exception("[BeatmapService] %s - not found", md5)
             return None
 
     async def from_id(self, beatmap_id: int) -> BeatmapModel | None:
-        if request := await self.repository.from_id(beatmap_id):
-            return beatmap_to_model(request)
-        if request := await self.osuapi_client.beatmap(beatmap_id=beatmap_id):
-            schema = beatmap_from_api(request, request.beatmapset())
-            await self.repository.save(schema)
-            beatmap = beatmap_to_model(schema)
-            await self.download(beatmap)
-            return beatmap
-        return None
+        try:
+            if request := await self.repository.from_id(beatmap_id):
+                return beatmap_to_model(request)
+            if request := await self.osuapi_client.beatmap(beatmap_id=beatmap_id):
+                schema = beatmap_from_api(request, request.beatmapset())
+                await self.repository.save(schema)
+                beatmap = beatmap_to_model(schema)
+                await self.download(beatmap)
+                return beatmap
+            return None
+        except ValueError:
+            logging.exception("[BeatmapService] %s - not found", beatmap_id)
+            return None
 
     async def download(self, beatmap: BeatmapModel) -> Path | None:
         path = Path(f"/srv/odrx_storage/beatmaps/{beatmap.id}.osu")
@@ -112,10 +117,14 @@ class BeatmapService:
                 rate = speed_multiplier.settings.get_setting("rateMultiplier").value
         return modlist, rate
 
-    def prepare_beatmap(self, beatmap_id: int) -> rosu_pp_py.Beatmap:
-        return open_rosu_beatmap(beatmap_id)
+    async def prepare_beatmap(self, beatmap: BeatmapModel) -> rosu_pp_py.Beatmap:
+        beatmap_path = pathlib.Path(f"/srv/odrx_storage/beatmaps/{beatmap.id}.osu")
+        if beatmap_path.exists() is False:
+            await self.download(beatmap)
 
-    def calculate_attrs(
+        return open_rosu_beatmap(beatmap.id)
+
+    async def calculate_attrs(
         self,
         beatmap: BeatmapModel,
         mods: list[dict],
@@ -126,7 +135,7 @@ class BeatmapService:
         int | float | None,
     ]:
         modlist, clock_rate = self.prepare_modlist(mods)
-        rosu_beatmap = self.prepare_beatmap(beatmap.id)
+        rosu_beatmap = await self.prepare_beatmap(beatmap)
         beatmap_attrs = self.attrs_calculator.calculate(
             rosu_beatmap,
             modlist,
@@ -134,7 +143,7 @@ class BeatmapService:
         )
         return beatmap_attrs, rosu_beatmap, modlist, clock_rate
 
-    def calculate_diff_attrs(
+    async def calculate_diff_attrs(
         self,
         beatmap: BeatmapModel,
         mods: list[dict],
@@ -145,7 +154,7 @@ class BeatmapService:
         ModList,
         int | float | None,
     ]:
-        beatmap_attrs, rosu_beatmap, modlist, clock_rate = self.calculate_attrs(
+        beatmap_attrs, rosu_beatmap, modlist, clock_rate = await self.calculate_attrs(
             beatmap,
             mods,
         )

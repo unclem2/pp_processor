@@ -21,7 +21,7 @@ async def get_beatmap_attrs(
     beatmap = await beatmap_service.from_id(request.beatmap_id)
     if beatmap is None:
         return {"error": "Beatmap not found"}
-    beatmap_attrs, rosu_beatmap, modlist, clock_rate = beatmap_service.calculate_attrs(beatmap, mods=request.mods)
+    beatmap_attrs, rosu_beatmap, modlist, clock_rate = await beatmap_service.calculate_attrs(beatmap, mods=request.mods)
 
 
     return beatmap_attrs

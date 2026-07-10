@@ -1,9 +1,6 @@
-import pathlib
-from time import time
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from pyinstrument import Profiler
 
 from objects.dependencies.services import get_beatmap_service, get_score_service
 from objects.models.score import ScoreModel
@@ -35,8 +32,6 @@ async def calculate(
     beatmap_service: BeatmapService = Depends(get_beatmap_service),
     score_service: ScoreService = Depends(get_score_service),
 ):
-    profiler = Profiler()
-    profiler.start()
 
     if request.md5:
         beatmap = await beatmap_service.from_md5(request.md5)
@@ -61,6 +56,5 @@ async def calculate(
         request.slidertickhits,
         request.sliderendhits,
         )
-    profiler.stop()
-    pathlib.Path(f"profile{request.md5}{time()}.html").write_text(profiler.output_html())
+
     return result

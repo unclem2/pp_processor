@@ -6,6 +6,29 @@ import rosu_pp_py
 
 from objects.models.beatmap_attrs import BeatmapAttributesModel
 
+def droid_cs_to_standard_cs(cs: float) -> float:
+    """
+        Converts Droid CS to standard CS.
+        Formulas taken from Rian8337 osu-droid-module:
+        https://github.com/Rian8337/osu-droid-module/blob/master/packages/osu-base/src/utils/CircleSizeCalculator.ts
+    """
+    old_assumed_droid_height = 681
+    base_radius = 64
+    old_droid_scale_multiplier = (0.5 * (11 - 5.2450170716245195)) / 5
+    broken_gamefield_rounding_allowance = 1.00041
+
+    old_droid_scale = max(
+        ((old_assumed_droid_height / 480) * (54.42 - cs * 4.48)) / base_radius + old_droid_scale_multiplier,
+        1e-3
+    )
+
+    standard_radius = (base_radius * old_droid_scale) / ((old_assumed_droid_height * 0.85) / 384)
+
+    scale = standard_radius / base_radius
+
+    standard_cs = 5 + (5 * (1 - (2 * scale) / broken_gamefield_rounding_allowance)) / 0.7
+    return standard_cs 
+
 
 @dataclass
 class HitWindows:
@@ -51,6 +74,9 @@ class BeatmapAttributesCalculator:
     def calculate(
         self, beatmap: rosu_pp_py.Beatmap, mods: od.ModList, clock_rate: float | None,
     ) -> BeatmapAttributesModel:
+        """
+        This one must return model instead of raw object, because droid attributes are calculated differently
+        """
         beatmap_attributes = rosu_pp_py.BeatmapAttributesBuilder(map=beatmap)
 
         beatmap_attributes.set_mods(mods.as_calculable_mods)
@@ -65,7 +91,7 @@ class BeatmapAttributesCalculator:
             base_ar=attrs.base_ar,
             base_od=attrs.base_od,
             clock_rate=attrs.clock_rate,
-            cs=attrs.cs,
+            cs=droid_cs_to_standard_cs(attrs.cs),
             hp=attrs.hp,
             od=attrs.od,
             od_great_hit_window=attrs.od_great_hit_window,
