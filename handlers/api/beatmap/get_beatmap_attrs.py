@@ -5,7 +5,7 @@ from objects.dependencies.services import get_beatmap_service
 from objects.models.beatmap_attrs import BeatmapAttributesModel
 from objects.services.beatmap import BeatmapService
 
-router = APIRouter(prefix="/get_diff_attrs")
+router = APIRouter(prefix="/get_beatmap_attrs")
 
 
 class BeatmapDifficultyAttributesRequestModel(BaseModel):
