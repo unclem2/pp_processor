@@ -43,8 +43,6 @@ class PerformanceAttributesCalculator:
             performance.set_small_tick_hits(slidertickhits)
         if sliderendhits is not None:
             performance.set_slider_end_hits(sliderendhits)
-        if clock_rate is not None:
-            performance.set_clock_rate(clock_rate)
         performance_attributes = performance.calculate(difficulty_attrs)
 
         return performance_attributes

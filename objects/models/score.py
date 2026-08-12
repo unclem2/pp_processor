@@ -20,3 +20,5 @@ class ScoreModel(BaseModel):
     hkatsu: int = 0
     slidertickhits: int = 0
     sliderendhits: int = 0
+    sliderheadhits: int = 0
+    sliderrepeathits: int = 0

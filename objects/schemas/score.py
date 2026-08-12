@@ -24,6 +24,8 @@ class ScoreSchema(Base):
     hkatsu: Mapped[int] = mapped_column()
     slidertickhits: Mapped[int] = mapped_column()
     sliderendhits: Mapped[int] = mapped_column()
+    sliderheadhits: Mapped[int] = mapped_column()
+    sliderrepeathits: Mapped[int] = mapped_column()
     grade: Mapped[str] = mapped_column()
     fc: Mapped[bool] = mapped_column()
     date: Mapped[int] = mapped_column()

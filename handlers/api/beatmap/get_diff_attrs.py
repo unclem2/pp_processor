@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from objects.dependencies.services import get_beatmap_service
@@ -20,7 +20,7 @@ async def get_diff_attrs(
 ):
     beatmap = await beatmap_service.from_id(request.beatmap_id)
     if beatmap is None:
-        return {"error": "Beatmap not found"}
+        raise HTTPException(status_code=404, detail="Beatmap not found")
     diff_attrs, beatmap_attrs, rosu_beatmap, modlist, clock_rate = await beatmap_service.calculate_diff_attrs(beatmap, mods=request.mods)
 
     diff_attrs_model = BeatmapDifficultyAttributesModel(

@@ -40,6 +40,7 @@ class BeatmapRepository:
                 total_length=beatmap.total_length,
                 max_combo=beatmap.max_combo,
                 bpm=beatmap.bpm,
+                status=beatmap.status,
             )
             .on_conflict_do_update(
                 index_elements=[BeatmapSchema.id],
@@ -54,6 +55,7 @@ class BeatmapRepository:
                     "total_length": beatmap.total_length,
                     "max_combo": beatmap.max_combo,
                     "bpm": beatmap.bpm,
+                    "status": beatmap.status,
                 },
             )
         )

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+import config
 
 class PerformanceAttributesModel(BaseModel):
     speed: float = 0.0
@@ -7,3 +7,4 @@ class PerformanceAttributesModel(BaseModel):
     acc: float = 0.0
     flashlight: float = 0.0
     total: float = 0.0
+    pp_version: str = config.pp_version

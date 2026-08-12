@@ -1,6 +1,6 @@
 
-from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 
 from objects.dependencies.services import get_beatmap_service, get_score_service
 from objects.models.score import ScoreModel
@@ -13,16 +13,18 @@ router = APIRouter(prefix="/score")
 class CalculateRequestModel(BaseModel):
     beatmap_id: int | None = None
     md5: str | None = None
-    acc: float | None = 100
-    miss: int | None = 0
-    combo: int | None = None
-    h300: int | None = None
-    h100: int | None = None
-    h50: int | None = None
-    hgeki: int | None = None
-    hkatsu: int | None = None
-    slidertickhits: int | None = None
-    sliderendhits: int | None = None
+    acc: float | None = Field(default=100, ge=0, le=100)
+    miss: int | None = Field(default=0, ge=0)
+    combo: int | None = Field(default=None, ge=0)
+    h300: int | None = Field(default=None, ge=0)
+    h100: int | None = Field(default=None, ge=0)
+    h50: int | None = Field(default=None, ge=0)
+    hgeki: int | None = Field(default=None, ge=0)
+    hkatsu: int | None = Field(default=None, ge=0)
+    slidertickhits: int | None = Field(default=None, ge=0)
+    sliderendhits: int | None = Field(default=None, ge=0)
+    sliderheadhits: int | None = Field(default=None, ge=0)
+    sliderrepeathits: int | None = Field(default=None, ge=0)
     mods: list[dict] = []
 
 
@@ -38,11 +40,11 @@ async def calculate(
     elif request.beatmap_id:
         beatmap = await beatmap_service.from_id(request.beatmap_id)
     else:
-        return {"error": "Specify something bro"}
+        raise HTTPException(status_code=400, detail="Specify beatmap_id or md5")
     if beatmap is None:
-        return {"error": "Beatmap not found"}
+        raise HTTPException(status_code=404, detail="Beatmap not found")
 
-    result = score_service.calculate(
+    result = await score_service.calculate(
         beatmap,
         request.mods,
         request.acc,
@@ -55,6 +57,8 @@ async def calculate(
         request.hkatsu,
         request.slidertickhits,
         request.sliderendhits,
-        )
+        request.sliderheadhits,
+        request.sliderrepeathits
+    )
 
     return result

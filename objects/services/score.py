@@ -3,13 +3,15 @@ from objects.calculators.performance_attrs import PerformanceAttributesCalculato
 from objects.models.beatmap import BeatmapModel
 from objects.models.performance_attrs import PerformanceAttributesModel
 from objects.models.score import ScoreModel
+from objects.repositories.score import ScoreRepository
 from objects.services.beatmap import BeatmapService
 
 
 class ScoreService:
-    def __init__(self, performance_calculator: PerformanceAttributesCalculator, beatmap_service: BeatmapService) -> None:
+    def __init__(self, performance_calculator: PerformanceAttributesCalculator, beatmap_service: BeatmapService, score_repository: ScoreRepository) -> None:
         self.performance_calculator = performance_calculator
         self.beatmap_service = beatmap_service
+        self.score_repository = score_repository
 
     async def calculate(
         self,
@@ -25,6 +27,8 @@ class ScoreService:
         hkatsu: int | None,
         slidertickhits: int | None,
         sliderendhits: int | None,
+        sliderheadhits: int | None,
+        sliderrepeathits: int | None,
     ) -> ScoreModel:
 
         diff_attrs, beatmap_attrs_model, rosu_beatmap, modlist, clock_rate = await self.beatmap_service.calculate_diff_attrs(beatmap, mods)
@@ -46,7 +50,7 @@ class ScoreService:
         performance_attrs_model = PerformanceAttributesModel(
             aim=perf_attrs.pp_aim,
             speed=perf_attrs.pp_speed,
-            accuracy=perf_attrs.pp_accuracy,
+            acc=perf_attrs.pp_accuracy,
             flashlight=perf_attrs.pp_flashlight,
             total=perf_attrs.pp,
         )
@@ -66,4 +70,6 @@ class ScoreService:
             hkatsu=hkatsu if hkatsu is not None else 0,
             slidertickhits=slidertickhits if slidertickhits is not None else 0,
             sliderendhits=sliderendhits if sliderendhits is not None else 0,
+            sliderheadhits=sliderheadhits if sliderheadhits is not None else 0,
+            sliderrepeathits=sliderrepeathits if sliderrepeathits is not None else 0,
         )

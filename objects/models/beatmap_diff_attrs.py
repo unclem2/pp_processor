@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import config
 
 
 class BeatmapDifficultyAttributesModel(BaseModel):
@@ -6,3 +7,4 @@ class BeatmapDifficultyAttributesModel(BaseModel):
     aim: float = 0.0
     flashlight: float = 0.0
     total: float = 0.0
+    pp_version: str = config.pp_version

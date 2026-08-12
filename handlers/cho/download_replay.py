@@ -1,18 +1,21 @@
 import os
+from pathlib import Path
 
-from handlers.response import Failed
-from quart import Blueprint, send_file
+from fastapi import APIRouter, HTTPException
 
-bp = Blueprint("download_replay", __name__)
-
-forced_route = "/api/upload/<string:replay_path>"
+router = APIRouter(prefix="/upload")
 
 
-@bp.route("/", methods=["GET"])
-async def view_replay(replay_path: str):
-    path = f"data/replays/{replay_path}"  # already have .odr
+@router.get("/{replay_path}")
+async def download_replay(replay_path: str):
+    safe_path = Path("data/replays") / replay_path
+    resolved = safe_path.resolve()
+    allowed_base = Path("data/replays").resolve()
+    if not str(resolved).startswith(str(allowed_base)):
+        raise HTTPException(status_code=403, detail="Access denied")
 
-    if not os.path.isfile(path):
-        return Failed("Replay not found.")
+    if not resolved.is_file():
+        raise HTTPException(status_code=404, detail="Replay not found")
 
-    return await send_file(path)
+    from fastapi.responses import FileResponse
+    return FileResponse(resolved)

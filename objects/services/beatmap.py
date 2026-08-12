@@ -58,6 +58,9 @@ class BeatmapService:
         except ValueError:
             logging.exception("[BeatmapService] %s - not found", md5)
             return None
+        except Exception:
+            logging.exception("[BeatmapService] %s - error fetching beatmap", md5)
+            return None
 
     async def from_id(self, beatmap_id: int) -> BeatmapModel | None:
         try:
@@ -73,6 +76,9 @@ class BeatmapService:
         except ValueError:
             logging.exception("[BeatmapService] %s - not found", beatmap_id)
             return None
+        except Exception:
+            logging.exception("[BeatmapService] %s - error fetching beatmap", beatmap_id)
+            return None
 
     async def download(self, beatmap: BeatmapModel) -> Path | None:
         path = Path(f"/srv/odrx_storage/beatmaps/{beatmap.id}.osu")
@@ -80,47 +86,53 @@ class BeatmapService:
             return path
 
         url = f"https://old.ppy.sh/osu/{beatmap.id}"
-        async with aiohttp.ClientSession() as sess, sess.get(url) as res:
-            if not res or res.status != 200:
-                return None
+        try:
+            async with aiohttp.ClientSession() as sess, sess.get(url) as res:
+                if not res or res.status != 200:
+                    return None
 
-            content = await res.read()
+                content = await res.read()
 
-        await path.write_bytes(content)
-        return path
+            await path.write_bytes(content)
+            return path
+        except Exception:
+            logging.exception("[BeatmapService] Failed to download beatmap %s", beatmap.id)
+            return None
 
     def prepare_modlist(self, mods: list[dict]) -> tuple[ModList, float | None]:
         modlist: ModList = ModList.from_dict(mods)
         speed_multiplier = modlist.get_mod("CS")
         rate = None
         if speed_multiplier is not None:
-            rate = speed_multiplier.settings.get_setting("rateMultiplier").value
-            if mod := modlist.get_mod("DT"):
-                mod.settings.add_setting(
-                    od.classes.mods.settings.Setting(
-                        name="speed_change", value=1.5 * rate,
-                    ),
-                )
-            elif mod := modlist.get_mod("HT"):
-                mod.settings.add_setting(
-                    od.classes.mods.settings.Setting(
-                        name="speed_change", value=0.75 * rate,
-                    ),
-                )
-            elif mod := modlist.get_mod("NC"):
-                mod.settings.add_setting(
-                    od.classes.mods.settings.Setting(
-                        name="speed_change", value=1.5 * rate,
-                    ),
-                )
-            else:
-                rate = speed_multiplier.settings.get_setting("rateMultiplier").value
+            rate_setting = speed_multiplier.settings.get_setting("rateMultiplier")
+            rate = rate_setting.value if rate_setting is not None else None
+            if rate is not None:
+                if mod := modlist.get_mod("DT"):
+                    mod.settings.add_setting(
+                        od.classes.mods.settings.Setting(
+                            name="speed_change", value=1.5 * rate,
+                        ),
+                    )
+                elif mod := modlist.get_mod("HT"):
+                    mod.settings.add_setting(
+                        od.classes.mods.settings.Setting(
+                            name="speed_change", value=0.75 * rate,
+                        ),
+                    )
+                elif mod := modlist.get_mod("NC"):
+                    mod.settings.add_setting(
+                        od.classes.mods.settings.Setting(
+                            name="speed_change", value=1.5 * rate,
+                        ),
+                    )
         return modlist, rate
 
     async def prepare_beatmap(self, beatmap: BeatmapModel) -> rosu_pp_py.Beatmap:
         beatmap_path = pathlib.Path(f"/srv/odrx_storage/beatmaps/{beatmap.id}.osu")
-        if beatmap_path.exists() is False:
-            await self.download(beatmap)
+        if not beatmap_path.exists():
+            result = await self.download(beatmap)
+            if result is None:
+                raise FileNotFoundError(f"Failed to download beatmap {beatmap.id}")
 
         return open_rosu_beatmap(beatmap.id)
 

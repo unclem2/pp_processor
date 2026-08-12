@@ -22,17 +22,19 @@ logging.basicConfig(
     ],
 )
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # startup
-    print("DB connected")
+    logger.info("DB connected")
     await init(engine)
     yield
 
     # shutdown
     await engine.dispose()
-    print("DB closed")
+    logger.info("DB closed")
 
 
 def make_app() -> FastAPI:
@@ -51,12 +53,14 @@ app.state.osuapi_client = ossapi_client
 @app.middleware("http")
 async def add_process_time(request: Request, call_next):
     start = time.perf_counter()
-
-    response = await call_next(request)
-
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("Request %s %s failed", request.method, request.url.path)
+        raise
     process_time = time.perf_counter() - start
     response.headers["X-Process-Time"] = f"{process_time:.6f}"
 
-    print(f"{request.method} {request.url.path}: {process_time:.3f}s")
+    logger.info("%s %s: %.3fs", request.method, request.url.path, process_time)
 
     return response

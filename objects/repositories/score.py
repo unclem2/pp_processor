@@ -12,7 +12,7 @@ class ScoreRepository:
         return await self.session.get(ScoreSchema, id)
 
     async def save(self, score: ScoreSchema) -> None:
-        (
+        stmt = (
             insert(ScoreSchema)
             .values(
                 id=score.id,
@@ -61,3 +61,4 @@ class ScoreRepository:
                 },
             )
         )
+        await self.session.execute(stmt)

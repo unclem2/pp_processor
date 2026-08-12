@@ -8,10 +8,11 @@ from objects.dependencies.calculators import (
 from objects.dependencies.clients import get_osuapi_client
 from objects.dependencies.repositories import (
     get_beatmap_repository,
+    get_score_repository,
 )
+from objects.calculators.performance_attrs import PerformanceAttributesCalculator
 from objects.repositories.beatmap import BeatmapRepository
-
-# from objects.repositories.score import ScoreRepository
+from objects.repositories.score import ScoreRepository
 from objects.services.beatmap import BeatmapService
 from objects.services.score import ScoreService
 
@@ -33,8 +34,8 @@ async def get_beatmap_service(
 
 
 async def get_score_service(
-    performance_calculator=Depends(get_performance_attributes_calculator),
-    beatmap_service=Depends(get_beatmap_service),
-
+    performance_calculator: PerformanceAttributesCalculator = Depends(get_performance_attributes_calculator),
+    beatmap_service: BeatmapService = Depends(get_beatmap_service),
+    score_repository: ScoreRepository = Depends(get_score_repository),
 ) -> ScoreService:
-    return ScoreService(performance_calculator, beatmap_service)
+    return ScoreService(performance_calculator, beatmap_service, score_repository)

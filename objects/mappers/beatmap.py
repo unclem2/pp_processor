@@ -17,6 +17,7 @@ def from_api(beatmap: Beatmap, beatmapset: Beatmapset) -> BeatmapSchema:
         total_length=beatmap.total_length,
         max_combo=beatmap.max_combo,
         bpm=beatmapset.bpm,
+        status=beatmap.status.value
     )
 
 
