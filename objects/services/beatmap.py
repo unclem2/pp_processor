@@ -58,6 +58,7 @@ class BeatmapService:
         try:
             if request := await self.repository.from_md5(md5):
                 await self._refresh_status(request)
+                await self.repository.refresh(request)
                 return beatmap_to_model(request)
             if request := await self.osuapi_client.beatmap(checksum=md5):
                 schema = beatmap_from_api(request, request.beatmapset())
@@ -77,6 +78,7 @@ class BeatmapService:
         try:
             if request := await self.repository.from_id(beatmap_id):
                 await self._refresh_status(request)
+                await self.repository.refresh(request)
                 return beatmap_to_model(request)
             if request := await self.osuapi_client.beatmap(beatmap_id=beatmap_id):
                 schema = beatmap_from_api(request, request.beatmapset())

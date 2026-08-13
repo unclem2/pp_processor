@@ -61,3 +61,6 @@ class BeatmapRepository:
         )
         await self.session.execute(stmt)
         await self.session.commit()
+
+    async def refresh(self, beatmap: BeatmapSchema) -> None:
+        await self.session.refresh(beatmap)
