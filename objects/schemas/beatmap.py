@@ -23,4 +23,4 @@ class BeatmapSchema(Base):
     total_length: Mapped[int] = mapped_column()
     max_combo: Mapped[int] = mapped_column()
     bpm: Mapped[float] = mapped_column()
-    status: Mapped[int] = mapped_column()
+    status: Mapped[int | None] = mapped_column(nullable=True)

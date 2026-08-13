@@ -44,9 +44,20 @@ class BeatmapService:
         self.attrs_calculator = attrs_calculator
         self.performance_calculator = performance_calculator
 
+    async def _refresh_status(self, schema) -> None:
+        if schema.status is not None:
+            return
+        try:
+            api_beatmap = await self.osuapi_client.beatmap(beatmap_id=schema.id)
+            schema.status = api_beatmap.status.value
+            await self.repository.save(schema)
+        except Exception:
+            logging.exception("[BeatmapService] Failed to refresh status for beatmap %s", schema.id)
+
     async def from_md5(self, md5: str) -> BeatmapModel | None:
         try:
             if request := await self.repository.from_md5(md5):
+                await self._refresh_status(request)
                 return beatmap_to_model(request)
             if request := await self.osuapi_client.beatmap(checksum=md5):
                 schema = beatmap_from_api(request, request.beatmapset())
@@ -65,6 +76,7 @@ class BeatmapService:
     async def from_id(self, beatmap_id: int) -> BeatmapModel | None:
         try:
             if request := await self.repository.from_id(beatmap_id):
+                await self._refresh_status(request)
                 return beatmap_to_model(request)
             if request := await self.osuapi_client.beatmap(beatmap_id=beatmap_id):
                 schema = beatmap_from_api(request, request.beatmapset())
