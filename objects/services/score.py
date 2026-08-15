@@ -52,6 +52,7 @@ class ScoreService:
             speed=perf_attrs.pp_speed,
             acc=perf_attrs.pp_accuracy,
             flashlight=perf_attrs.pp_flashlight,
+            reading=perf_attrs.pp_reading,
             total=perf_attrs.pp,
         )
         return ScoreModel(

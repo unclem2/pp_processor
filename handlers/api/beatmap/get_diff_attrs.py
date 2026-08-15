@@ -27,6 +27,7 @@ async def get_diff_attrs(
         aim=diff_attrs.aim,
         speed=diff_attrs.speed,
         flashlight=diff_attrs.flashlight,
+        reading=diff_attrs.reading,
         total=diff_attrs.stars,
     )
     return diff_attrs_model
