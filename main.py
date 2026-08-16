@@ -9,6 +9,7 @@ from ossapi import OssapiAsync
 
 # Other imports
 import handlers
+import asyncio
 from objects.db.db import engine, init
 
 load_dotenv()
@@ -64,3 +65,38 @@ async def add_process_time(request: Request, call_next):
     logger.info("%s %s: %.3fs", request.method, request.url.path, process_time)
 
     return response
+
+async def main():
+    import uvicorn
+
+    http_config = uvicorn.Config(
+        "main:app",
+        host="localhost",
+        port=8002,
+        log_level="debug",
+    )
+
+    unix_socket_path = "/tmp/pp_processor.sock"
+    if os.path.exists(unix_socket_path):
+        os.remove(unix_socket_path)
+
+    unix_config = uvicorn.Config(
+        "main:app",
+        uds=unix_socket_path,
+        log_level="debug",
+    )
+
+    server = uvicorn.Server(http_config)
+    unix_server = uvicorn.Server(unix_config)
+
+    try:
+        await asyncio.gather(server.serve(), unix_server.serve())
+    except Exception as e:
+        logger.exception("Server error: %s", e)
+    finally:
+        await server.shutdown()
+        await unix_server.shutdown()
+        os.remove(unix_socket_path)
+
+if __name__ == "__main__":
+    asyncio.run(main())
