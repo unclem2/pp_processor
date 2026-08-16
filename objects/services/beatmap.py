@@ -21,6 +21,7 @@ from objects.mappers.beatmap import (
 from objects.models.beatmap import BeatmapModel
 from objects.models.beatmap_attrs import BeatmapAttributesModel
 from objects.repositories.beatmap import BeatmapRepository
+from objects.schemas import BeatmapSchema
 
 
 # @lru_cache(maxsize=128)
@@ -44,7 +45,7 @@ class BeatmapService:
         self.attrs_calculator = attrs_calculator
         self.performance_calculator = performance_calculator
 
-    async def _refresh_status(self, schema) -> None:
+    async def _refresh_status(self, schema: BeatmapSchema) -> None:
         if schema.status is not None:
             return
         try:

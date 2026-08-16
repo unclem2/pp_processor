@@ -18,7 +18,7 @@ class BeatmapModel(BaseModel):
     total_length: int = 0
     max_combo: int = 0
     bpm: float = 0.0
-    status: int = 0
+    status: int | None = 0
     attributes: BeatmapAttributesModel | None = BeatmapAttributesModel()
     star: BeatmapDifficultyAttributesModel | None = BeatmapDifficultyAttributesModel()
 

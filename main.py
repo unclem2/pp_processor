@@ -72,8 +72,9 @@ async def main():
     http_config = uvicorn.Config(
         "main:app",
         host="localhost",
-        port=8002,
+        port=8001,
         log_level="debug",
+        workers=4
     )
 
     unix_socket_path = "/tmp/pp_processor.sock"
@@ -84,6 +85,7 @@ async def main():
         "main:app",
         uds=unix_socket_path,
         log_level="debug",
+        workers=4
     )
 
     server = uvicorn.Server(http_config)

@@ -13,7 +13,7 @@ engine = create_async_engine(
     os.getenv("DATABASE_URL"),
 )
 
-sessionmaker = async_sessionmaker(engine)
+sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
 
 
 async def init(engine) -> None:
