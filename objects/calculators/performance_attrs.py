@@ -1,5 +1,8 @@
+from dataclasses import field
 import osudroid_api_wrapper as od
 import rosu_pp_py
+
+from objects.models.beatmap_attrs import BeatmapAttributesModel
 
 
 class PerformanceAttributesCalculator:
@@ -8,6 +11,7 @@ class PerformanceAttributesCalculator:
 
     def calculate(
         self,
+        beatmap_attrs_model: BeatmapAttributesModel,
         difficulty_attrs: rosu_pp_py.DifficultyAttributes,
         mods: od.ModList,
         clock_rate: float | None = None,
@@ -43,6 +47,11 @@ class PerformanceAttributesCalculator:
             performance.set_small_tick_hits(slidertickhits)
         if sliderendhits is not None:
             performance.set_slider_end_hits(sliderendhits)
+        performance.set_ar(beatmap_attrs_model.ar, fixed=True)
+        performance.set_od(beatmap_attrs_model.od, fixed=True)
+        performance.set_cs(beatmap_attrs_model.cs, fixed=True)
+        performance.set_hp(beatmap_attrs_model.hp, fixed=True)
+
         performance_attributes = performance.calculate(difficulty_attrs)
 
         return performance_attributes

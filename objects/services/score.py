@@ -33,6 +33,7 @@ class ScoreService:
 
         diff_attrs, beatmap_attrs_model, rosu_beatmap, modlist, clock_rate = await self.beatmap_service.calculate_diff_attrs(beatmap, mods)
         perf_attrs = self.performance_calculator.calculate(
+            beatmap_attrs=beatmap_attrs_model,
             difficulty_attrs=diff_attrs,
             mods=modlist,
             clock_rate=clock_rate,
@@ -54,7 +55,9 @@ class ScoreService:
             flashlight=perf_attrs.pp_flashlight,
             reading=perf_attrs.pp_reading,
             total=perf_attrs.pp,
+            effective_miss_count=perf_attrs.effective_miss_count
         )
+        beatmap.attributes = beatmap_attrs_model
         return ScoreModel(
             bmap=beatmap,
             md5=beatmap.md5,
