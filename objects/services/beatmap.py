@@ -128,18 +128,22 @@ class BeatmapService:
                             name="speed_change", value=1.5 * rate,
                         ),
                     )
+                    rate = None
                 elif mod := modlist.get_mod("HT"):
                     mod.settings.add_setting(
                         od.classes.mods.settings.Setting(
                             name="speed_change", value=0.75 * rate,
                         ),
                     )
+                    rate = None
                 elif mod := modlist.get_mod("NC"):
                     mod.settings.add_setting(
                         od.classes.mods.settings.Setting(
                             name="speed_change", value=1.5 * rate,
                         ),
                     )
+                    rate = None
+
         return modlist, rate
 
     async def prepare_beatmap(self, beatmap: BeatmapModel) -> rosu_pp_py.Beatmap:
