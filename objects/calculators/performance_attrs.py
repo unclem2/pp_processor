@@ -11,7 +11,6 @@ class PerformanceAttributesCalculator:
 
     def calculate(
         self,
-        beatmap_attrs_model: BeatmapAttributesModel,
         difficulty_attrs: rosu_pp_py.DifficultyAttributes,
         mods: od.ModList,
         clock_rate: float | None = None,
@@ -29,16 +28,22 @@ class PerformanceAttributesCalculator:
         performance = rosu_pp_py.Performance()
 
         performance.set_mods(mods.as_calculable_mods)
+
         if clock_rate is not None:
             performance.set_clock_rate(clock_rate)
         if acc is not None:
             performance.set_accuracy(acc)
-        elif h300 is not None and h100 is not None and h50 is not None and hgeki is not None and hkatsu is not None:
-            performance.set_n300(h300)
-            performance.set_n100(h100)
-            performance.set_n50(h50)
-            performance.set_n_geki(hgeki)
-            performance.set_n_katu(hkatsu)
+        elif h300 is not None or h100 is not None or h50 is not None or hgeki is not None or hkatsu is not None:
+            if h300 is not None:
+                performance.set_n300(h300)
+            if h100 is not None:
+                performance.set_n100(h100)
+            if h50 is not None:
+                performance.set_n50(h50)
+            if hgeki is not None:
+                performance.set_n_geki(hgeki)
+            if hkatsu is not None:
+                performance.set_n_katu(hkatsu)
         if miss is not None:
             performance.set_misses(miss)
         if combo is not None:
@@ -47,10 +52,7 @@ class PerformanceAttributesCalculator:
             performance.set_small_tick_hits(slidertickhits)
         if sliderendhits is not None:
             performance.set_slider_end_hits(sliderendhits)
-        performance.set_ar(beatmap_attrs_model.ar, fixed=True)
-        performance.set_od(beatmap_attrs_model.od, fixed=True)
-        performance.set_cs(beatmap_attrs_model.cs, fixed=True)
-        performance.set_hp(beatmap_attrs_model.hp, fixed=True)
+
 
         performance_attributes = performance.calculate(difficulty_attrs)
 

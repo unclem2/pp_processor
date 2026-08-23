@@ -13,7 +13,7 @@ router = APIRouter(prefix="/score")
 class CalculateRequestModel(BaseModel):
     beatmap_id: int | None = None
     md5: str | None = None
-    acc: float | None = Field(default=100, ge=0, le=100)
+    acc: float | None = Field(default=None, ge=0, le=100)
     miss: int | None = Field(default=0, ge=0)
     combo: int | None = Field(default=None, ge=0)
     h300: int | None = Field(default=None, ge=0)

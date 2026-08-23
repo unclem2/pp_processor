@@ -33,7 +33,6 @@ class ScoreService:
 
         diff_attrs, beatmap_attrs_model, rosu_beatmap, modlist, clock_rate = await self.beatmap_service.calculate_diff_attrs(beatmap, mods)
         perf_attrs = self.performance_calculator.calculate(
-            beatmap_attrs_model=beatmap_attrs_model,
             difficulty_attrs=diff_attrs,
             mods=modlist,
             clock_rate=clock_rate,
