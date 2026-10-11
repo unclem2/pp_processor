@@ -10,7 +10,9 @@ from ossapi import OssapiAsync
 # Other imports
 import handlers
 import asyncio
+from objects.clients import RateLimitedOssapiAsync
 from objects.db.db import engine, init
+from objects.rate_limiter import AsyncRateLimiter
 
 load_dotenv()
 
@@ -48,7 +50,8 @@ def make_app() -> FastAPI:
 
 app = make_app()
 ossapi_client = OssapiAsync(os.getenv("OSU_CLIENT_ID"), os.getenv("OSU_CLIENT_SECRET"))
-app.state.osuapi_client = ossapi_client
+rate_limiter = AsyncRateLimiter(max_requests=60, window_seconds=60.0)
+app.state.osuapi_client = RateLimitedOssapiAsync(ossapi_client, rate_limiter)
 
 
 @app.middleware("http")
@@ -74,7 +77,7 @@ async def main():
         host="localhost",
         port=8001,
         log_level="debug",
-        workers=4
+        workers=1
     )
 
     unix_socket_path = "/tmp/pp_processor.sock"
@@ -85,7 +88,7 @@ async def main():
         "main:app",
         uds=unix_socket_path,
         log_level="debug",
-        workers=4
+        workers=1
     )
 
     server = uvicorn.Server(http_config)
