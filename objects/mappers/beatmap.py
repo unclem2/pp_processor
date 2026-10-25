@@ -16,7 +16,7 @@ def from_api(beatmap: Beatmap, beatmapset: Beatmapset) -> BeatmapSchema:
         last_update=beatmap.last_updated,
         total_length=beatmap.total_length,
         max_combo=beatmap.max_combo,
-        bpm=beatmapset.bpm,
+        bpm=getattr(beatmapset, 'bpm', 0),
         status=beatmap.status.value
     )
 

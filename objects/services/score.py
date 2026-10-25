@@ -46,6 +46,8 @@ class ScoreService:
             hkatsu=hkatsu,
             slidertickhits=slidertickhits,
             sliderendhits=sliderendhits,
+            sliderheadhits=sliderheadhits,
+            sliderrepeathits=sliderrepeathits,
         )
         performance_attrs_model = PerformanceAttributesModel(
             aim=perf_attrs.pp_aim,

@@ -24,6 +24,8 @@ class PerformanceAttributesCalculator:
         hkatsu: int | None = None,
         slidertickhits: int | None = None,
         sliderendhits: int | None = None,
+        sliderheadhits: int | None = None,
+        sliderrepeathits: int | None = None,
     ) -> rosu_pp_py.PerformanceAttributes:
         performance = rosu_pp_py.Performance()
 
@@ -52,6 +54,10 @@ class PerformanceAttributesCalculator:
             performance.set_small_tick_hits(slidertickhits)
         if sliderendhits is not None:
             performance.set_slider_end_hits(sliderendhits)
+        if sliderheadhits is not None:
+            performance.set_large_tick_hits(sliderheadhits)
+        if sliderrepeathits is not None:
+            performance.set_slider_repeat_hits(sliderrepeathits)
 
 
         performance_attributes = performance.calculate(difficulty_attrs)

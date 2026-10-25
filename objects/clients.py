@@ -1,9 +1,10 @@
 import logging
 from functools import wraps
 
+from fastapi import HTTPException, status
 from ossapi import OssapiAsync
 
-from objects.rate_limiter import AsyncRateLimiter
+from objects.rate_limiter import AsyncRateLimiter, RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,11 @@ class RateLimitedOssapiAsync:
         if callable(attr):
             @wraps(attr)
             async def wrapper(*args, **kwargs):
-                await self._rate_limiter.acquire()
+                if not await self._rate_limiter.try_acquire():
+                    raise HTTPException(
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                        detail="osu! API rate limit exceeded, try again later",
+                    )
                 logger.debug("osu! API call: %s", name)
                 return await attr(*args, **kwargs)
             return wrapper

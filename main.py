@@ -4,14 +4,16 @@ import time
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from ossapi import OssapiAsync
 
 # Other imports
 import handlers
 import asyncio
+import math
 from objects.clients import RateLimitedOssapiAsync
 from objects.db.db import engine, init
+from objects.dependencies.rate_limit import RATE_LIMIT_MARKER
 from objects.rate_limiter import AsyncRateLimiter
 
 load_dotenv()
@@ -52,6 +54,7 @@ app = make_app()
 ossapi_client = OssapiAsync(os.getenv("OSU_CLIENT_ID"), os.getenv("OSU_CLIENT_SECRET"))
 rate_limiter = AsyncRateLimiter(max_requests=60, window_seconds=60.0)
 app.state.osuapi_client = RateLimitedOssapiAsync(ossapi_client, rate_limiter)
+app.state.osu_rate_limiter = rate_limiter
 
 
 @app.middleware("http")
@@ -67,6 +70,22 @@ async def add_process_time(request: Request, call_next):
 
     logger.info("%s %s: %.3fs", request.method, request.url.path, process_time)
 
+    return response
+
+
+@app.middleware("http")
+async def add_rate_limit_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Report the osu! API bucket state on responses of rate-limited routes.
+    # Slots are consumed by the API calls the request itself made during
+    # processing, so peek after call_next for the freshest values. Rejected
+    # (429) responses already carry accurate headers from the dependency.
+    if getattr(request.state, RATE_LIMIT_MARKER, False) and response.status_code != status.HTTP_429_TOO_MANY_REQUESTS:
+        limiter: AsyncRateLimiter = request.app.state.osu_rate_limiter
+        remaining, reset_in = await limiter.peek()
+        response.headers["X-RateLimit-Limit"] = str(limiter.max_requests)
+        response.headers["X-RateLimit-Remaining"] = str(remaining)
+        response.headers["X-RateLimit-Reset"] = str(int(time.time()) + max(1, math.ceil(reset_in)))
     return response
 
 async def main():
