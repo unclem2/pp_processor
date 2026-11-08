@@ -50,14 +50,13 @@ class PerformanceAttributesCalculator:
             performance.set_misses(miss)
         if combo is not None:
             performance.set_combo(combo)
-        if slidertickhits is not None:
-            performance.set_small_tick_hits(slidertickhits)
+        if slidertickhits is not None or sliderrepeathits is not None:
+            performance.set_large_tick_hits((slidertickhits or 0) + (sliderrepeathits or 0))
         if sliderendhits is not None:
             performance.set_slider_end_hits(sliderendhits)
         if sliderheadhits is not None:
-            performance.set_large_tick_hits(sliderheadhits)
-        if sliderrepeathits is not None:
-            performance.set_slider_repeat_hits(sliderrepeathits)
+            performance.set_small_tick_hits(sliderheadhits)
+
 
 
         performance_attributes = performance.calculate(difficulty_attrs)
