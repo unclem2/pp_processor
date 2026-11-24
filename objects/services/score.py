@@ -5,6 +5,7 @@ from objects.models.performance_attrs import PerformanceAttributesModel
 from objects.models.score import ScoreModel
 from objects.repositories.score import ScoreRepository
 from objects.services.beatmap import BeatmapService
+from objects.models.beatmap_diff_attrs import BeatmapDifficultyAttributesModel
 
 
 class ScoreService:
@@ -59,6 +60,13 @@ class ScoreService:
             effective_miss_count=perf_attrs.effective_miss_count
         )
         beatmap.attributes = beatmap_attrs_model
+        beatmap.star = BeatmapDifficultyAttributesModel(
+            aim=diff_attrs.aim,
+            speed=diff_attrs.speed,
+            flashlight=diff_attrs.flashlight,
+            reading=diff_attrs.reading,
+            total=diff_attrs.stars,
+        )
         return ScoreModel(
             bmap=beatmap,
             md5=beatmap.md5,

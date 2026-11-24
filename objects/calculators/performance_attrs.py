@@ -33,9 +33,8 @@ class PerformanceAttributesCalculator:
 
         if clock_rate is not None:
             performance.set_clock_rate(clock_rate)
-        if acc is not None:
-            performance.set_accuracy(acc)
-        elif h300 is not None or h100 is not None or h50 is not None or hgeki is not None or hkatsu is not None:
+
+        if h300 is not None or h100 is not None or h50 is not None or hgeki is not None or hkatsu is not None:
             if h300 is not None:
                 performance.set_n300(h300)
             if h100 is not None:
@@ -46,6 +45,8 @@ class PerformanceAttributesCalculator:
                 performance.set_n_geki(hgeki)
             if hkatsu is not None:
                 performance.set_n_katu(hkatsu)
+        elif acc is not None:
+            performance.set_accuracy(acc)
         if miss is not None:
             performance.set_misses(miss)
         if combo is not None:

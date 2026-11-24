@@ -8,7 +8,7 @@ from objects.services.beatmap import BeatmapService
 router = APIRouter(prefix="/get_beatmap")
 
 
-@router.get("/{beatmap_id}", response_model=BeatmapModel)
+@router.get("/bid/{beatmap_id}", response_model=BeatmapModel)
 async def get_beatmap_by_id(
     beatmap_id: int, beatmap_service: BeatmapService = Depends(get_beatmap_service),
 ):

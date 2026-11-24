@@ -7,18 +7,23 @@ from objects.services.beatmap import BeatmapService
 
 router = APIRouter(prefix="/get_beatmap_attrs")
 
-
-class BeatmapDifficultyAttributesRequestModel(BaseModel):
-    beatmap_id: int
+class BeatmapAttributesRequestModel(BaseModel):
+    beatmap_id: int | None = None
+    md5: str | None = None
     mods: list[dict] = []
 
 
-@router.post("/", response_model=BeatmapAttributesModel)
-async def get_beatmap_attrs(
-    request: BeatmapDifficultyAttributesRequestModel,
+@router.post("", response_model=BeatmapAttributesModel)
+async def get_beatmap_attrs_by_id(
+    request: BeatmapAttributesRequestModel,
     beatmap_service: BeatmapService = Depends(get_beatmap_service),
 ):
-    beatmap = await beatmap_service.from_id(request.beatmap_id)
+    if request.md5:
+        beatmap = await beatmap_service.from_md5(request.md5)
+    elif request.beatmap_id:
+        beatmap = await beatmap_service.from_id(request.beatmap_id)
+    else:
+        return {"error": "Specify beatmap_id or md5"}
     if beatmap is None:
         return {"error": "Beatmap not found"}
     beatmap_attrs, rosu_beatmap, modlist, clock_rate = await beatmap_service.calculate_attrs(beatmap, mods=request.mods)

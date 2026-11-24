@@ -8,17 +8,24 @@ from objects.services.beatmap import BeatmapService
 router = APIRouter(prefix="/get_diff_attrs")
 
 
+
 class BeatmapDifficultyAttributesRequestModel(BaseModel):
-    beatmap_id: int
+    beatmap_id: int | None = None
+    md5: str | None = None
     mods: list[dict] = []
 
 
-@router.post("/", response_model=BeatmapDifficultyAttributesModel)
+@router.post("", response_model=BeatmapDifficultyAttributesModel)
 async def get_diff_attrs(
     request: BeatmapDifficultyAttributesRequestModel,
     beatmap_service: BeatmapService = Depends(get_beatmap_service),
 ):
-    beatmap = await beatmap_service.from_id(request.beatmap_id)
+    if request.md5:
+        beatmap = await beatmap_service.from_md5(request.md5)
+    elif request.beatmap_id:
+        beatmap = await beatmap_service.from_id(request.beatmap_id)
+    else:
+        raise HTTPException(status_code=400, detail="Specify beatmap_id or md5")
     if beatmap is None:
         raise HTTPException(status_code=404, detail="Beatmap not found")
     diff_attrs, beatmap_attrs, rosu_beatmap, modlist, clock_rate = await beatmap_service.calculate_diff_attrs(beatmap, mods=request.mods)
